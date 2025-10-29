@@ -1,515 +1,401 @@
-M✨, [6/1/2025 9:04 PM]
-package hotelresevationsystem;
+#include <iostream>
+#include <fstream>
+#include <cstring>
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+using namespace std;
 
-public class Bookings {
-    private Guest guest;
-    private Room room;
-    private int numberOfNights;
-    private String checkInDate;
+const int MAX_ROOMS = 10;
+const float SINGLE_ROOM_PRICE = 2000.0;
+const float DOUBLE_ROOM_PRICE = 3500.0;
+const float BUNDLE_ROOM_PRICE = 5000.0;
+const float JUNIOR_SUITE_PRICE = 7500.0;
+const float EXECUTIVE_SUITE_PRICE = 12000.0;
+const float PRESIDENTIAL_SUITE_PRICE = 20000.0;
+const float VILLA_PRICE = 10000.0;
+const float SPA_SERVICE_PRICE = 1500.0;
+const float LOCAL_TOUR_PRICE = 1000.0;
+const float TAXI_SERVICE_PRICE = 500.0;
+const char ADMIN_USERNAME[] = "hotel.cpp";
+const char ADMIN_PASSWORD[] = "hotel@123";
 
-    public Bookings(Guest guest, Room room, String checkInDate) {
-        this.guest = guest;
-        this.room = room;
-        this.checkInDate= checkInDate;
-        bookingsList.add(this);
+struct Booking {
+    char name[50];
+    int roomNumber;
+    char roomType[20];
+    int nights;
+    float price;
+    char phone[15];
+    char username[20];
+    char password[20];
+    bool hasSpa;
+    bool hasTour;
+    bool hasTaxi;
+    bool isPaid;
+};
+
+Booking bookings[MAX_ROOMS];
+int bookingCount = 0;
+
+void saveBookings() {
+    ofstream file("C:/Users/JOSI/Desktop/c++ project/edited/bookings3.txt", ios::out);
+    if (!file) return;
+    for (int i = 0; i < bookingCount; i++) {
+        file << "Name: "<<bookings[i].name << "|" << "Room Number: "<<bookings[i].roomNumber << "|"
+             << "Room Type: "<<bookings[i].roomType << "|" <<"Nights: "<<bookings[i].nights << "|"
+             << "Price: "<<bookings[i].price << "|" <<"Phone Number: "<<bookings[i].phone << "|"
+             << "Username: "<<bookings[i].username << "|" << "Password: "<<bookings[i].password << "|"
+             << "Has Spa: "<<bookings[i].hasSpa << "|" <<"Has Tour: "<<bookings[i].hasTour << "|"
+             << "Has Taxi: "<<bookings[i].hasTaxi << "|"<<"Paid: " <<bookings[i].isPaid << endl;
     }
-    
-   public int getRoomNumber() {
-        return room.getRoomNumber();
-    }
-
-    public Guest getGuest() {
-        return guest;
-    }
-   
-    public void setRoom(Room room) {
-    this.room = room;
+    file.close();
 }
 
-    public void setCheckInDate(String date) {
-    this.checkInDate = date;
+void loadBookings() {
+    ifstream file("C:/Users/JOSI/Desktop/c++ project/edited/bookings3.txt", ios::in);
+    if (!file) return;
+    string header;
+    getline(file, header); // Skip the header line
+    bookingCount = 0;
+    while (file >> bookings[bookingCount].name >> bookings[bookingCount].roomNumber
+                >> bookings[bookingCount].roomType >> bookings[bookingCount].nights
+                >> bookings[bookingCount].price >> bookings[bookingCount].phone
+                >> bookings[bookingCount].username >> bookings[bookingCount].password
+                >> bookings[bookingCount].hasSpa >> bookings[bookingCount].hasTour
+                >> bookings[bookingCount].hasTaxi
+                >> bookings[bookingCount].isPaid) {
+        bookingCount++;
+    }
+    file.close();
 }
 
-    public static void addBooking(Bookings booking) {
-    bookingsList.add(booking);
-}
-    
-    private static List<Bookings> bookingsList = new ArrayList<>();
-
-    public static void cancelBookingByName(String name) {
-        Bookings booking = findBookingByName(name);
-        if (booking != null) {
-            bookingsList.remove(booking);
-            System.out.println("Booking canceled successfully for " + name);
-        } else {
-            System.out.println("No booking found for " + name);
-        }
-    }
-
-    public static void viewBookingByName(String name) {
-        Bookings booking = findBookingByName(name);
-        if (booking != null) {
-            booking.showBookingDetails();
-        } else {
-            System.out.println("No booking found for " + name);
-        }
-    }
-
-    public static void updateBookingByName(String name, Scanner scanner) {
-        Bookings booking = findBookingByName(name);
-        if (booking != null) {
-            System.out.println("Enter new check-in date (yyyy-mm-dd): ");
-            String newDate = scanner.nextLine();
-            booking.setCheckInDate(newDate);  // if you have such method
-            System.out.println("Booking updated successfully.");
-        } else {
-            System.out.println("No booking found for " + name);
-        }
-    }
-
-    public static void deleteBookingByName(String name) {
-        cancelBookingByName(name); // reuse
-    }
-
-    public static Bookings findBookingByName(String name) {
-        for (Bookings b : bookingsList) {
-            if (b.getGuest().getName().equalsIgnoreCase(name)) {
-                return b;
-            } else {
+void deleteBooking() {
+    int roomNumber;
+    cout << "Enter room number to delete booking: ";
+    cin >> roomNumber;
+    for (int i = 0; i < bookingCount; i++) {
+        if (bookings[i].roomNumber== roomNumber) {
+            for (int j = i; j < bookingCount - 1; j++) {
+                bookings[j] = bookings[j + 1];
             }
-        }
-        return null;
-    }
-   
-   public void showBookingDetails(){
-        double totalPrice = room.Calculate_Total_Price();
-        guest.displayGuest();
-        System.out.println("Room Type: "+ room.getRoomtype());
-        System.out.println("Room Number: " + room.getRoomNumber());
-        System.out.println("Number of Nights: "+ room.getNumber_of_Nights());
-        System.out.println("Total Price: "+ totalPrice + " ETB.");
-        System.out.println("Check-In Date: " + (checkInDate != null ? checkInDate : "Not Set"));
-        
-        LocalDate checkIn = LocalDate.parse(checkInDate);
-        LocalDate checkOut = checkIn.plusDays(room.getNumber_of_Nights());
-        System.out.println("Check-Out Date: " + checkOut);
-  
-   }
-   
-    public static List<Bookings> getAllBookings() {
-    return bookingsList;
-    }
-
-}
-
-M✨, [6/1/2025 9:04 PM]
-package hotelresevationsystem;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class RoomManager {
-    private static int NextRoomNumber= 100; // start room numbers from 100
-    private static List<Room> rooms = new ArrayList<>();
-    
-    public static int getNextRoomNumber() {
-        return NextRoomNumber++;
-    }
-
-    public static void addRoom(Room room) {
-        rooms.add(room);
-    }
-
-   
-    public static List<Room> getRooms() {
-        return rooms;
-    }
-   
-}
-
-M✨, [6/1/2025 9:04 PM]
-package hotelresevationsystem;
-
-public class DoubleRoom extends Room {
-    
-     private static final double PricePerNight= 3000.00;
-
-    public DoubleRoom(int RoomNumber, boolean isAvailable) {
-        super(RoomNumber, isAvailable);
-    }
-    
-    @Override
-     public double CalculatePricePerNight(){
-         return PricePerNight;
-     }
-    @Override
-    public String getRoomtype(){
-        return "Double Room!!";
-    }
-    
-}
-
-M✨, [6/1/2025 9:04 PM]
-package hotelresevationsystem;
-
-import java.util.Scanner;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
-public class HotelReservationSystem {
-    private Room room;
-
-     public static void AdminMenu(Scanner scanner){
-        boolean exit= false;
-        
-        while(!exit){
-            System.out.println("--------------------------------------------");
-            System.out.println("                Admin Menu                  ");
-            System.out.println("--------------------------------------------");
-            System.out.println("1- Add New Rooms");
-            System.out.println("2- View All Booking");
-            System.out.println("3- Update Booking");
-            System.out.println("4- Delete Booking");
-            System.out.println("5- Back to Main Menu");
-            
-            System.out.println("--------------------------------------------");
-            System.out.print("Enter Your Choice: ");
-           
-            int choice= scanner.nextInt();
-          
-            
-           switch(choice){
-                case 1:
-                    AddNewRooms(scanner);
-                    break;
-                case 2: 
-                    ViewAllBookings();
-                    break;
-                case 3:
-                    UpdateBookingAdmin(scanner);
-                    break;
-                case 4: 
-                    DeleteBookingAdmin(scanner);
-                    break;
-                case 5:
-                    exit= true;
-                    break; 
-                default:
-                    System.out.println("Invalid Choice!!!");
-            }
-        }
-        
-    }
-    
-    public static void CustomerMenu(Scanner scanner){
-        boolean exit = false;
-        
-        
-        while(!exit){
-            
-            System.out.println("--------------------------------------------");
-            System.out.println("            Customer Menu                   ");
-            System.out.println("--------------------------------------------");
-            System.out.println("1- Book a Room");
-            System.out.println("2- Cancel Booking");
-            System.out.println("3- View Booking");
-            System.out.println("4- Back to Main Menu");
-            
-            
-            System.out.println("--------------------------------------------");
-            System.out.print("Enter Your Choice: ");
-            
-            
-           
-            int choice= scanner.nextInt();
-            
-            switch(choice){
-                case 1:
-                    BookRoom(scanner);
-                    break;
-                case 2: 
-                    CancelBooking(scanner);
-                    break;
-                case 3:
-                    ViewBooking(scanner);
-                    break;
-                case 4: 
-                    exit= true;
-                    break; 
-                default:
-                    System.out.println("Invalid Choice!!!");
-            }
-        }
-
-    }
-
-M✨, [6/1/2025 9:04 PM]
-// Customer Menu
-    
-    
-    public static void BookRoom(Scanner scanner){
-        System.out.println("Enter Your Name: ");
-        scanner.nextLine();
-        String name= scanner.nextLine();
-        
-        System.out.println("Enter Your Fayda No: ");
-        int fayda= scanner.nextInt();
-        
-        System.out.println("Enter Your Phone No: ");
-        int phone = scanner.nextInt();
-        
-        scanner.nextLine();
-        System.out.println("Enter Your Address: ");
-        String address= scanner.nextLine();
-        
-        
-        Guest guest = new Guest(fayda,name, phone, address);
-        
-    
-        System.out.println("Select Room Type:");
-        System.out.println("1. Single Room");
-        System.out.println("2. Double Room");
-        System.out.println("3. Suite Room");
-        System.out.print("Enter your choice : ");
-        int choice = scanner.nextInt();
-        
-        System.out.println("Enter Your number of Nights: ");
-        int nof = scanner.nextInt();
-        
-      
-        scanner.nextLine(); // consume leftover newline
-        String date;
-         while (true) {
-            System.out.print("Enter your check-in date (yyyy-mm-dd): ");
-            date = scanner.nextLine();
-
-            try {
-                LocalDate parsedDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
-                        //past date
-                if (parsedDate.isBefore(LocalDate.now())) {
-                System.out.println("Check-in date cannot be in the past.");
-                continue;
-                }
-
-                break;
-            } 
-            catch (DateTimeParseException e) {
-                System.out.println("Invalid date format. Please enter in yyyy-mm-dd format.");
-            }
-        }
-
-
-
-        Room room = null;
-         int roomNumber = RoomManager.getNextRoomNumber();
-         switch (choice) {
-            case 1:
-                room = new SingleRoom(roomNumber, true);
-                break;
-            case 2:
-                room = new DoubleRoom(roomNumber, true);
-                break;
-            case 3:
-                room = new SuiteRoom(roomNumber, true);
-                break;
-                default:
-            System.out.println("Invalid room type.");
+            bookingCount--;
+            saveBookings();
+            cout << "Booking deleted successfully.\n";
             return;
-            
-    }
-
-    room.setNumber_of_Nights(nof); // This sets number of nights correctly
-    RoomManager.addRoom(room);
-
-    Bookings booking = new Bookings(guest, room, date); // Also fix parameter here
-    Bookings.addBooking(booking);
-    booking.showBookingDetails();
-    room.bookingRoom();
-    room.Calculate_Total_Price();
-
-}
-
-
-    public static void CancelBooking(Scanner scanner) {
-    System.out.print("Enter your full name to cancel booking: ");
-    scanner.nextLine(); 
-    String name = scanner.nextLine();
-    Bookings.cancelBookingByName(name);
- 
-    }
-    
-    
-    public static void ViewBooking(Scanner scanner) {
-    System.out.print("Enter your full name to view booking: ");
-    scanner.nextLine(); 
-    String name = scanner.nextLine();
-    Bookings.viewBookingByName(name);
-}
-
-// Admins side
-    public static void AddNewRooms(Scanner scanner) {
-    System.out.println("Select Room Type to Add:");
-    System.out.println("1. Single Room");
-    System.out.println("2. Double Room");
-    System.out.println("3. Suite Room");
-
-    int roomTypeChoice = scanner.nextInt();
-    scanner.nextLine();
-
-    System.out.print("Enter the number of rooms to add: ");
-    scanner.nextLine(); 
-    int numberOfRooms = scanner.nextInt();
-    scanner.nextLine();
-
-    for (int i = 0; i < numberOfRooms; i++) {
-        int roomNumber = RoomManager.getNextRoomNumber();
-        Room newRoom;
-
-M✨, [6/1/2025 9:04 PM]
-switch (roomTypeChoice) {
-            case 1:
-                newRoom = new SingleRoom(roomNumber, true);
-                break;
-            case 2:
-                newRoom = new DoubleRoom(roomNumber, true);
-                break;
-            case 3:
-                newRoom = new SuiteRoom(roomNumber, true);
-                break;
-            default:
-                System.out.println("Invalid room type.");
-                return;
-        }
-        
-        RoomManager.addRoom(newRoom);
-    }
-
-    System.out.println(numberOfRooms + " new rooms added successfully.");
-}
-    
-    public static void ViewAllBookings() {
-    if (Bookings.getAllBookings().isEmpty()) {
-        System.out.println("No bookings found.");
-    } else {
-        for (Bookings booking : Bookings.getAllBookings()) {
-            System.out.println("=================================");
-            booking.showBookingDetails();
         }
     }
+    cout << "Booking not found.\n";
 }
 
-    public static void UpdateBookingAdmin(Scanner scanner) {
-    System.out.print("Enter the guest’s full name to update booking: ");
-    scanner.nextLine(); 
-    String name = scanner.nextLine();
+void updateBooking() {
+    int roomNum;
+    cout << "Enter room number to update booking: ";
+    cin >> roomNum;
 
-    Bookings booking = Bookings.findBookingByName(name);
+    for (int i = 0; i < bookingCount; i++) {
+        if (bookings[i].roomNumber == roomNum) {
+            cout << "\nBooking Found! Updating details...\n";
 
-    if (booking != null) {
-        System.out.println("Select what you want to update:");
-        System.out.println("1. Change Room Type");
-        System.out.println("2. Change Check-In Date");
+            // Update room number
+            cout << "Enter new room number: ";
+            cin >> bookings[i].roomNumber;
 
-        int updateChoice = scanner.nextInt();
-        scanner.nextLine();
+            // Update room type
+            cout << "Enter new room type (single/double/bundle/junior suite/executive suite/presidential suite/villa): ";
+            cin >> bookings[i].roomType;
 
-        switch (updateChoice) {
-            case 1:
-                System.out.println("Select New Room Type:");
-                System.out.println("1. Single Room");
-                System.out.println("2. Double Room");
-                System.out.println("3. Suite Room");
-                int type = scanner.nextInt();
-                scanner.nextLine();
+            // Update number of nights
+            cout << "Enter new number of nights: ";
+            cin >> bookings[i].nights;
 
-                Room newRoom = null;
-                int newRoomNumber = RoomManager.getNextRoomNumber();
+            // Update services
+            char choice;
+            cout << "Do you want to add/update spa service? (y/n): ";
+            cin >> choice;
+            bookings[i].hasSpa = (choice == 'y' || choice == 'Y');
 
-                switch (type) {
-                    case 1:
-                        newRoom = new SingleRoom(newRoomNumber, true);
-                        break;
-                    case 2:
-                        newRoom = new DoubleRoom(newRoomNumber, true);
-                        break;
-                    case 3:
-                        newRoom = new SuiteRoom(newRoomNumber, true);
-                        break;
-                    default:
-                        System.out.println("Invalid room type.");
-                        return;
-                }
+            cout << "Do you want to add/update local tour? (y/n): ";
+            cin >> choice;
+            bookings[i].hasTour = (choice == 'y' || choice == 'Y');
 
-                booking.setRoom(newRoom);
-                RoomManager.addRoom(newRoom);
-                System.out.println("Room type updated.");
-                break;
+            cout << "Do you want to add/update taxi service? (y/n): ";
+            cin >> choice;
+            bookings[i].hasTaxi = (choice == 'y' || choice == 'Y');
 
-            case 2:
-                System.out.print("Enter new check-in date (yyyy-mm-dd): ");
-                String newDate = scanner.nextLine();
-                booking.setCheckInDate(newDate);
-                System.out.println("Check-in date updated.");
-                break;
+            // Recalculate total price based on new selections
+            bookings[i].price = bookings[i].nights *
+                                (strcmp(bookings[i].roomType, "single") == 0 ? SINGLE_ROOM_PRICE :
+                                 strcmp(bookings[i].roomType, "double") == 0 ? DOUBLE_ROOM_PRICE :
+                                 strcmp(bookings[i].roomType, "junior") == 0 ? JUNIOR_SUITE_PRICE :
+                                 strcmp(bookings[i].roomType, "executive") == 0 ? EXECUTIVE_SUITE_PRICE:
+                                 strcmp(bookings[i].roomType, "presidential") == 0 ? PRESIDENTIAL_SUITE_PRICE :
+                                 strcmp(bookings[i].roomType, "villa") == 0 ? VILLA_PRICE:
+                                 BUNDLE_ROOM_PRICE);
 
-            default:
-                System.out.println("Invalid choice.");
+            if (bookings[i].hasSpa) bookings[i].price += SPA_SERVICE_PRICE;
+            if (bookings[i].hasTour) bookings[i].price += LOCAL_TOUR_PRICE;
+            if (bookings[i].hasTaxi) bookings[i].price += TAXI_SERVICE_PRICE;
+
+            // Save updated data
+            saveBookings();
+            cout << "\nBooking updated successfully!\n";
+
+            // Display updated details
+            cout << "\n----- Updated Booking Details -----\n";
+            cout << "Name: " << bookings[i].name << "\n";
+            cout << "Phone Number: "<<bookings[i].phone<<"\n";
+            cout << "Room Number: " << bookings[i].roomNumber << "\n";
+            cout << "Room Type: " << bookings[i].roomType << "\n";
+            cout << "Nights: " << bookings[i].nights << "\n";
+            cout << "Spa Service: " << (bookings[i].hasSpa ? "Yes" : "No") << "\n";
+            cout << "Local Tour: " << (bookings[i].hasTour ? "Yes" : "No") << "\n";
+            cout << "Taxi Service: " << (bookings[i].hasTaxi ? "Yes" : "No") << "\n";
+            cout << "Total Price: " << bookings[i].price << "\n";
+            cout << "Paid: " << (bookings[i].isPaid ? "Yes" : "No") << "\n";
+            return;
         }
-    } else {
-        System.out.println("No booking found for " + name);
     }
-}
-    
-    public static void DeleteBookingAdmin(Scanner scanner) {
-        System.out.print("Enter guest name to delete booking: ");
-        scanner.nextLine(); 
-        String name = scanner.nextLine();
-        Bookings.deleteBookingByName(name);
-}
-//Main Menu
-    public static void main(String[] args) {
-        // TODO code  logic here
-        
-        Scanner scanner = new Scanner(System.in);
-        boolean exit = false;
 
-M✨, [6/1/2025 9:04 PM]
-while(!exit){
-        System.out.println("--------------------------------------------");
-        System.out.println("            Welcome to Our Hotel!!!!!       ");
-        System.out.println("--------------------------------------------");
-        System.out.println("1- Customer Menu");
-        System.out.println("2- Admin Menu ");
-        System.out.println("3- Exit");
-      
-        System.out.print("Enter your choice: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
-        
+    cout << "Booking not found.\n";
+}
+
+
+void searchBooking() {
+    int roomNumber;
+    cout << "Enter roomNumber to search for booking: ";
+    cin >> roomNumber;
+    for (int i = 0; i < bookingCount; i++) {
+        if (bookings[i].roomNumber==roomNumber) {
+            cout << "Booking found:\n";
+            cout << "Name: " << bookings[i].name << " | Room: " << bookings[i].roomNumber
+                 << " | Type: " << bookings[i].roomType << " | Nights: " << bookings[i].nights
+                 << " | Price: " << bookings[i].price << " | Paid: " << (bookings[i].isPaid ? "Yes" : "No") << endl;
+            return;
+        }
+    }
+    cout << "Booking not found.\n";
+}
+
+
+void viewAllBookings() {
+    if (bookingCount == 0) {
+        cout << "No bookings available.\n";
+        return;
+    }
+
+    cout << "\n----- All Bookings -----\n";
+    for (int i = 0; i < bookingCount; i++) {
+        cout<< "Name: "<<bookings[i].name << "|" << "Room Number: "<<bookings[i].roomNumber << "|"
+             << "Room Type: "<<bookings[i].roomType << "|" <<"Nights: "<<bookings[i].nights << "|"
+             << "Price: "<<bookings[i].price << "|" <<"Phone Number: "<<bookings[i].phone << "|"
+             << "Username: "<<bookings[i].username << "|" << "Password: "<<bookings[i].password << "|"
+             << "Has Spa: "<<bookings[i].hasSpa << "|" <<"Has Tour: "<<bookings[i].hasTour << "|"
+             << "Has Taxi: "<<bookings[i].hasTaxi << "|"<<"Paid: " <<bookings[i].isPaid << endl;
+    }
+    cout << "-----------------------------------------------------------------------------\n";
+}
+
+void adminMenu() {
+    char username[20], password[20];
+
+    cout << "Enter admin username: ";
+    cin >> username;
+    cout << "Enter admin password: ";
+    cin >> password;
+
+    if (strcmp(username, ADMIN_USERNAME) != 0 || strcmp(password, ADMIN_PASSWORD) != 0) {
+        cout << "Access Denied!\n";
+        return;
+    }
+
+    int choice;
+    do {
+        cout << "\n----- Reception/Admin Panel -----\n";
+        cout << "1. View All Bookings\n";
+        cout << "2. Search Booking\n";
+        cout << "3. Update Booking\n";
+        cout << "4. Delete Booking\n";
+        cout << "5. Back to Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
         switch (choice) {
             case 1:
-                CustomerMenu(scanner);
+                viewAllBookings();
                 break;
             case 2:
-                AdminMenu(scanner);
+                searchBooking();
                 break;
-            case 3: 
-                exit=true;
-                System.out.println("Thank you for using the Hotel Reservation System!");
+            case 3:
+                updateBooking();
+                break;
+            case 4:
+                deleteBooking();
+                break;
+            case 5:
+                cout << "Exiting admin panel.\n";
                 break;
             default:
-                System.out.println("Invalid Choice!!!!!");
-                break;
-            }
+                cout << "Invalid choice! Please try again.\n";
         }
-    
-      scanner.close();
+    } while (choice != 5);
+}
+
+void updateGuestStatus() {
+    int roomNumber;
+    cout << "Enter your room number to update status: ";
+    cin >> roomNumber;
+    for (int i = 0; i < bookingCount; i++) {
+        if (bookings[i].roomNumber==roomNumber) {
+            char choice;
+            cout << "Do you want to update the number of nights? (y/n): ";
+            cin>>choice;
+            if (choice =='y'|| choice =='Y'){
+                cout<<"Enter new number of nights: ";
+                cin>>bookings[i].nights;
+                        }
+
+            cout << "Do you want to add spa service? (y/n): ";
+            cin >> choice;
+            bookings[i].hasSpa = (choice == 'y' || choice == 'Y');
+
+            cout << "Do you want to add local tour? (y/n): ";
+            cin >> choice;
+            bookings[i].hasTour = (choice == 'y' || choice == 'Y');
+
+            cout << "Do you want to add taxi service? (y/n): ";
+            cin >> choice;
+            bookings[i].hasTaxi = (choice == 'y' || choice == 'Y');
+
+            saveBookings();
+            cout << "Status updated successfully.\n";
+            return;
+        }
     }
-    
+    cout << "Booking not found.\n";
+}
+
+
+
+void bookRoom() {
+    if (bookingCount >= MAX_ROOMS) {
+        cout << "No rooms available!\n";
+        return;
+    }
+
+    Booking newBooking;
+    cout << "Enter your name: ";
+    cin.ignore(); // To handle previous input
+    cin.getline(newBooking.name, 50);
+    cout<<"Enter your phone number: ";
+    cin>>newBooking.phone;
+    cout << "Enter username: ";
+    cin >> newBooking.username;
+    cout << "Enter password: ";
+    cin >> newBooking.password;
+    newBooking.roomNumber = bookingCount + 1;
+
+    cout << "Enter room type (single/double/bundle/junior/executive suite/presidential suite/villa): ";
+    cin >> newBooking.roomType;
+    cout << "Enter number of nights: ";
+    cin >> newBooking.nights;
+
+    // Price Calculation (fixed issue here)
+    newBooking.price = newBooking.nights *
+                       (strcmp(newBooking.roomType, "single") == 0 ? SINGLE_ROOM_PRICE :
+                        strcmp(newBooking.roomType, "double") == 0 ? DOUBLE_ROOM_PRICE :
+                        strcmp(newBooking.roomType, "junior") == 0 ? JUNIOR_SUITE_PRICE :
+                        strcmp(newBooking.roomType, "executive") == 0 ? EXECUTIVE_SUITE_PRICE:
+                        strcmp(newBooking.roomType, "presidential") == 0 ? PRESIDENTIAL_SUITE_PRICE :
+                        strcmp(newBooking.roomType, "villa") == 0 ? VILLA_PRICE:
+                        BUNDLE_ROOM_PRICE);
+
+    // Adding extra services
+    char choice;
+    cout << "Do you want to add spa service? (y/n): ";
+    cin >> choice;
+    newBooking.hasSpa = (choice == 'y' || choice == 'Y');
+    if (newBooking.hasSpa) newBooking.price += SPA_SERVICE_PRICE;
+
+    cout << "Do you want to add local tour? (y/n): ";
+    cin >> choice;
+    newBooking.hasTour = (choice == 'y' || choice == 'Y');
+    if (newBooking.hasTour) newBooking.price += LOCAL_TOUR_PRICE;
+
+    cout << "Do you want to add taxi service? (y/n): ";
+    cin >> choice;
+    newBooking.hasTaxi = (choice == 'y' || choice == 'Y');
+    if (newBooking.hasTaxi) newBooking.price += TAXI_SERVICE_PRICE;
+
+    newBooking.isPaid = false; // Default payment status
+
+    // Save the new booking
+    bookings[bookingCount++] = newBooking;
+    saveBookings();
+    cout << "\nRoom booked successfully!\n";
+
+    // Display Booking Information Immediately
+    cout << "\n----- Your Booking Details -----\n";
+    cout << "Name: " << newBooking.name << "\n";
+    cout << "Room Number: " << newBooking.roomNumber << "\n";
+    cout << "Room Type: " << newBooking.roomType << "\n";
+    cout << "Nights: " << newBooking.nights << "\n";
+    cout << "Spa Service: " << (newBooking.hasSpa ? "Yes" : "No") << "\n";
+    cout << "Local Tour: " << (newBooking.hasTour ? "Yes" : "No") << "\n";
+    cout << "Taxi Service: " << (newBooking.hasTaxi ? "Yes" : "No") << "\n";
+    cout << "Total Price: " << newBooking.price << "ETB\n";
+    cout << "Paid: " << (newBooking.isPaid ? "Yes" : "No") << "\n";
+}
+
+void guestMenu() {
+    int choice;
+    do {
+        cout << "\n----- Guest Interface -----\n";
+        cout << "1. Register and Book a Room\n";
+        cout << "2. Update Booking Status\n";
+        cout << "3. Back to Menu\n";
+        cout << "Enter your choice: ";
+        cin >> choice;  // Missing input statement
+
+        switch (choice) {  // Missing switch block
+            case 1:
+                bookRoom();  // Function for guest registration and booking
+                break;
+            case 2:
+                updateGuestStatus();  // Function to update booking status
+                break;
+            case 3:
+                cout << "Exiting guest interface.\n";
+                break;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 3);
+}
+
+
+int main() {
+    loadBookings();
+    int choice;
+    do {
+        cout << "\n----- Welcome to the Hotel Booking System -----\n";
+        cout << "1. Guest Interface\n";
+        cout << "2. Reception/Admin Panel\n";
+        cout << "3. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                guestMenu();
+                break;
+            case 2:
+                adminMenu();
+                break;
+            case 3:
+                cout << "Exiting the system. Thank you!\n";
+                break;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 3);
+    return 0;
 }
